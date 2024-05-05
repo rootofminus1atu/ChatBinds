@@ -3,10 +3,107 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:chatbinds"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="4*" />
+            </Grid.ColumnDefinitions>
+
+            <DataGrid Grid.Column="0" Margin="10" x:Name="GameChatKeys" AutoGenerateColumns="False" SelectionUnit="Cell"
+          CanUserResizeColumns="False" CanUserResizeRows="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
+                <DataGrid.Resources>
+                    <Style x:Key="InvisibleButtonStyle" TargetType="Button">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Remove">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Click="RemoveButton_Click" Background="Transparent" BorderThickness="0">
+                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <iconPacks:PackIconMaterial Kind="Close" Width="16" Height="16" />
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+
+                    <DataGridTextColumn Header="Game Name" Binding="{Binding Name}" Width="*" >
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Chat Key" Binding="{Binding ChatKey}" Width="Auto">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="VerticalAlignment" Value="Center"/>
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+
+
+
+
+
+            <!-- Right ListBox -->
+            <ListBox Grid.Column="1" Margin="10">
+                <!-- ItemTemplate for right ListBox -->
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="X" Margin="0,0,5,0" />
+                            <!-- Button with X -->
+                            <CheckBox Margin="0,0,5,0" />
+                            <!-- CheckBox -->
+                            <TextBlock Text="{Binding Name}" />
+                            <!-- Name -->
+                            <TextBlock Text="{Binding Key}" Margin="10,0,0,0" />
+                            <!-- Key -->
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Margin="10" Text="Listening Status: Listening" />
+            <Button Grid.Column="1" Margin="10" Content="Toggle" />
+            <!-- Button to toggle -->
+        </Grid>
     </Grid>
 </Window>
