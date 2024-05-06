@@ -69,5 +69,16 @@ namespace chatbinds
                 }
             }
         }
+
+
+        private void ThingsToSay_Add_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void GameChatKeys_Add_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
