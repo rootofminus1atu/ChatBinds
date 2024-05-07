@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,9 +76,9 @@ namespace chatbinds
                 Trace.WriteLine($"Registering {thing.Text} for hotkey {thing.HotKey} (vkc {(int)GetVirtualKeyCode(thing.HotKey)})");
                 keyboardHookManager.RegisterHotkey((int)GetVirtualKeyCode(thing.HotKey), () =>
                 {
-                    Trace.WriteLine($"space pls");
-                    inputSimulator.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-                    Trace.WriteLine($"space pls pressed");
+                    //Trace.WriteLine($"space pls");
+                    //inputSimulator.Keyboard.KeyPress(VirtualKeyCode.SPACE);
+                    //Trace.WriteLine($"space pls pressed");
 
                     var current = FindCurrentGameChatKey();
                     if (current is null)
@@ -86,11 +87,13 @@ namespace chatbinds
                     }
                     Trace.WriteLine($"current not null");
                     inputSimulator.Keyboard.KeyPress(GetVirtualKeyCode(current.ChatKey));
-                    //Trace.WriteLine($"pressed chat key {current.ChatKey}");
-                    //inputSimulator.Keyboard.TextEntry(thing.Text);
-                    //Trace.WriteLine($"sending text");
-                    //inputSimulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-                    //Trace.WriteLine($"pressing enter");
+                    Thread.Sleep(500);
+                    Trace.WriteLine($"pressed chat key {current.ChatKey}");
+                    inputSimulator.Keyboard.TextEntry(thing.Text);
+                    Thread.Sleep(500);
+                    Trace.WriteLine($"sending text");
+                    inputSimulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
+                    Trace.WriteLine($"pressing enter");
                 });
             }
         }
