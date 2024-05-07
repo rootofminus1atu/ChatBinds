@@ -28,31 +28,20 @@ namespace chatbinds
     public partial class MainWindow : Window
     {
         private readonly Db db = new Db();
-        private KeyboardHookManager keyboardHookManager = new KeyboardHookManager();
-        private bool keyboardHookManagerRunning = false;
-        InputSimulator inputSimulator = new InputSimulator();
+        private readonly BindsManager bindsManager;
 
         public MainWindow()
         {
+            bindsManager = new BindsManager(db);
             InitializeComponent();
             LoadGameChatKeys();
             LoadThingsToSay();
 
-            StartKeyboardHook();
-
+            bindsManager.Start();
+            UpdateListeningStatus();
         }
 
-        private VirtualKeyCode GetVirtualKeyCode(string keyName)
-        {
-            // some special cases
-            if (keyName == "OemQuestion")
-            {
-                Trace.WriteLine($"oem question lol {0xBF} -> {(VirtualKeyCode)0xBF}");
-                return (VirtualKeyCode)0xBF;
-            }
-            
-            return (VirtualKeyCode)Enum.Parse(typeof(VirtualKeyCode), keyName, ignoreCase: true);
-        }
+        // refreshers below
 
         private void LoadGameChatKeys()
         {
@@ -63,80 +52,13 @@ namespace chatbinds
         {
             var thingsToSay = db.ThingsToSay.ToList();
 
-            ReRegisterThingsToSay(thingsToSay);
+            bindsManager.ReRegisterBinds(thingsToSay);
 
             ThingsToSay.ItemsSource = thingsToSay;
         }
 
-        private void ReRegisterThingsToSay(IEnumerable<ThingToSay> thingsToSay)
-        {
-            keyboardHookManager.UnregisterAll();
-            foreach (var thing in thingsToSay)
-            {
-                Trace.WriteLine($"Registering {thing.Text} for hotkey {thing.HotKey} (vkc {(int)GetVirtualKeyCode(thing.HotKey)})");
-                keyboardHookManager.RegisterHotkey((int)GetVirtualKeyCode(thing.HotKey), () =>
-                {
-                    //Trace.WriteLine($"space pls");
-                    //inputSimulator.Keyboard.KeyPress(VirtualKeyCode.SPACE);
-                    //Trace.WriteLine($"space pls pressed");
 
-                    var current = FindCurrentGameChatKey();
-                    if (current is null)
-                    {
-                        return;
-                    }
-                    Trace.WriteLine($"current not null");
-                    inputSimulator.Keyboard.KeyPress(GetVirtualKeyCode(current.ChatKey));
-                    Thread.Sleep(500);
-                    Trace.WriteLine($"pressed chat key {current.ChatKey}");
-                    inputSimulator.Keyboard.TextEntry(thing.Text);
-                    Thread.Sleep(500);
-                    Trace.WriteLine($"sending text");
-                    inputSimulator.Keyboard.KeyPress(VirtualKeyCode.RETURN);
-                    Trace.WriteLine($"pressing enter");
-                });
-            }
-        }
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
-
-        [DllImport("user32.dll")]
-        private static extern int GetWindowText(IntPtr hWnd, System.Text.StringBuilder text, int count);
-
-        [DllImport("user32.dll")]
-        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-        private string GetActiveWindowTitle()
-        {
-            const int nChars = 256;
-            StringBuilder sb = new StringBuilder(nChars);
-            IntPtr hWnd = GetForegroundWindow();
-
-            if (hWnd != IntPtr.Zero)
-            {
-                GetWindowText(hWnd, sb, nChars);
-            }
-
-            return sb.ToString();
-        }
-        private string GetActiveProcessName()
-        {
-            IntPtr hwnd = GetForegroundWindow();
-            uint processId;
-            GetWindowThreadProcessId(hwnd, out processId);
-            Process process = Process.GetProcessById((int)processId);
-            return process.ProcessName;
-        }
-
-        private GameChatKey FindCurrentGameChatKey()
-        {
-            var currentWindow = GetActiveProcessName();
-            var res = db.GameChatKeys.Find(currentWindow);
-            Trace.WriteLine($"current window {res?.Name} with ck {res?.ChatKey}");
-
-            return res;
-        }
+        // handling the GameChatKeys events (adding and removing)
 
         private void GameChatKeys_Add_Click(object sender, RoutedEventArgs e)
         {
@@ -151,13 +73,15 @@ namespace chatbinds
             {
                 if (button.DataContext is GameChatKey selectedGameChatKey)
                 {
-                    MessageBox.Show($"Remove clicked for {selectedGameChatKey.Name}");
                     db.GameChatKeys.Remove(selectedGameChatKey);
                     db.SaveChanges();
                     LoadGameChatKeys();
                 }
             }
         }
+
+
+        // handling the THingsToSay events (adding and removing)
 
         private void ThingsToSay_Add_Click(object sender, RoutedEventArgs e)
         {
@@ -171,7 +95,6 @@ namespace chatbinds
             {
                 if (button.DataContext is ThingToSay selectedThingToSay)
                 {
-                    MessageBox.Show($"Remove clicked for {selectedThingToSay.Text}");
                     db.ThingsToSay.Remove(selectedThingToSay);
                     db.SaveChanges();
                     LoadThingsToSay();
@@ -179,32 +102,23 @@ namespace chatbinds
             }
         }
 
+
+        // handling the bindsManager status (listening or not listening)
+
         private void ToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            if (keyboardHookManagerRunning == true)
-            {
-                StopKeyboardHook();
-            } 
+            if (bindsManager.IsRunning == true)
+                bindsManager.Stop();
             else
-            {
-                StartKeyboardHook();
-            }
+                bindsManager.Start();
+
+            UpdateListeningStatus();
         }
 
-        private void StopKeyboardHook()
+        private void UpdateListeningStatus()
         {
-            keyboardHookManager.Stop();
-            keyboardHookManagerRunning = false;
-            ListeningStatusTextBlock.Foreground = Brushes.Red;
-            ListeningStatusTextBlock.Text = "Not listening";
-        }
-
-        private void StartKeyboardHook()
-        {
-            keyboardHookManager.Start();
-            keyboardHookManagerRunning = true;
-            ListeningStatusTextBlock.Foreground = Brushes.Green;
-            ListeningStatusTextBlock.Text = "Listening!";
+            ListeningStatusTextBlock.Foreground = bindsManager.IsRunning ? Brushes.Green : Brushes.Red;
+            ListeningStatusTextBlock.Text = bindsManager.IsRunning ? "Listening!" : "Not listening";
         }
     }
 }

@@ -228,6 +228,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BindsManager.cs" />
     <Compile Include="CopyToClipboardMessageBox.xaml.cs">
       <DependentUpon>CopyToClipboardMessageBox.xaml</DependentUpon>
     </Compile>
