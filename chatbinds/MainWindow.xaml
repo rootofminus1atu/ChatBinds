@@ -24,7 +24,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Column="0" Grid.Row="0" Text="Game - ChatKey associations (?)" FontWeight="Bold" Margin="15 10 0 5" />
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Game - ChatKey associations" FontWeight="Bold" Margin="15 10 0 5" />
             
             <DataGrid Grid.Column="0" Grid.Row="1" Margin="10 0 10 0" x:Name="GameChatKeys" AutoGenerateColumns="False" SelectionUnit="Cell"
           CanUserResizeColumns="False" CanUserResizeRows="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
@@ -81,7 +81,7 @@
             <Button Grid.Column="0" Grid.Row="1" Margin="10 0 10 0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Content="Add" Click="GameChatKeys_Add_Click"/>
 
 
-            <TextBlock Grid.Column="1" Grid.Row="0" Text="Things to say in chat when a hotkey is pressed (? todo help window)" FontWeight="Bold" Margin="15 10 0 5" />
+            <TextBlock Grid.Column="1" Grid.Row="0" Text="Things to say in chat when a hotkey is pressed" FontWeight="Bold" Margin="15 10 0 5" />
             
             <DataGrid Grid.Column="1" Grid.Row="1" Margin="10 0 10 0" x:Name="ThingsToSay" AutoGenerateColumns="False" SelectionUnit="Cell"
 CanUserResizeColumns="False" CanUserResizeRows="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="Column">
